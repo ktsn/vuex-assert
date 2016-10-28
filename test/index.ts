@@ -1,9 +1,57 @@
 import * as assert from 'power-assert'
-import index from '../src/index'
+import * as sinon from 'sinon'
+import * as Vue from 'vue'
+import * as Vuex from 'vuex'
+import {
+  plugin,
+  number,
+  string,
+  boolean
+} from '../src/index'
 
-describe('Entry point', () => {
-  it('should provide module', () => {
-    const actual = index
-    assert.deepStrictEqual(actual, {})
+let _message: string
+console.error = message => {
+  _message = message
+}
+
+describe('vuex-assert', () => {
+  Vue.use(Vuex)
+
+  it('asserts primitive', () => {
+    const modules = {
+      foo: {
+        state: {
+          a: 1,
+          b: 'str',
+          c: true
+        },
+        mutations: {
+          a: (state, n) => state.a = n,
+          b: (state, n) => state.b = n,
+          c: (state, n) => state.c = n
+        },
+        assertions: {
+          a: number,
+          b: string,
+          c: boolean
+        }
+      }
+    }
+
+    const store = new Vuex.Store({
+      modules,
+      plugins: [
+        plugin({ modules })
+      ]
+    })
+
+    store.commit('a', '1')
+    assert(/state\.foo\.a must be number, but actual value is "1"/.test(_message))
+
+    store.commit('b', false)
+    assert(/state\.foo\.b must be string, but actual value is false/.test(_message))
+
+    store.commit('c', { bar: 1 })
+    assert(/state\.foo\.c must be boolean, but actual value is {"bar":1}/.test(_message))
   })
 })
