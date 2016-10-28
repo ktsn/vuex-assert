@@ -54,4 +54,29 @@ describe('vuex-assert', () => {
     store.commit('c', { bar: 1 })
     assert(/state\.foo\.c must be boolean, but actual value is {"bar":1}/.test(_message))
   })
+
+  it('disallow null and undefined', () => {
+    const modules = {
+      foo: {
+        state: { value: 1 },
+        assertions: { value: number },
+        mutations: {
+          update: (state, n) => state.value = n
+        }
+      }
+    }
+
+    const store = new Vuex.Store({
+      modules,
+      plugins: [
+        plugin({ modules })
+      ]
+    })
+
+    store.commit('update', null)
+    assert(/state\.foo\.value must be number, but actual value is null/.test(_message))
+
+    store.commit('update', undefined)
+    assert(/state\.foo\.value must be number, but actual value is undefined/.test(_message))
+  })
 })
