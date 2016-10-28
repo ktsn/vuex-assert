@@ -1,0 +1,6 @@
+# vuex-assert
+
+
+## License
+
+MIT
