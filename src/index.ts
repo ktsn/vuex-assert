@@ -3,8 +3,8 @@ import { forEachValue, warn } from './utils'
 
 interface AssertResult {
   valid: boolean
-  expected?: string
-  actual?: any
+  expected: string
+  actual: any
 }
 
 interface AssertOptions {
@@ -23,22 +23,19 @@ declare module 'vuex' {
 class Assertion {
   constructor (
     private fn: (value: any) => boolean,
-    private expected: string
+    public expected: string
   ) {}
 
   validate (state: any): AssertResult {
-    const res = this.fn(state)
-    if (res) {
-      return {
-        valid: true
-      }
-    } else {
-      return {
-        valid: false,
-        expected: this.expected,
-        actual: state
-      }
+    return {
+      valid: this.fn(state),
+      expected: this.expected,
+      actual: state
     }
+  }
+
+  get optional () {
+    return or([this, optional])
   }
 }
 
@@ -76,6 +73,19 @@ function assertState (
     })
   }
 }
+
+export function or (assertions: Assertion[]): Assertion {
+  return new Assertion(value => {
+    return assertions
+      .map(a => a.validate(value).valid)
+      .reduce((acc, res) => acc || res, false)
+  }, assertions
+    .map(a => a.expected)
+    .join(' or ')
+  )
+}
+
+const optional = new Assertion(value => value == null, 'null or undefined')
 
 export const number = new Assertion(value => typeof value === 'number', 'number')
 export const string = new Assertion(value => typeof value === 'string', 'string')

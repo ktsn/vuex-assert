@@ -9,13 +9,20 @@ import {
   boolean
 } from '../src/index'
 
-let _message: string
-console.error = message => {
-  _message = message
-}
-
 describe('vuex-assert', () => {
   Vue.use(Vuex)
+
+  let _message: string | undefined
+
+  before(() => {
+    console.error = message => {
+      _message = message
+    }
+  })
+
+  beforeEach(() => {
+    _message = undefined
+  })
 
   it('asserts primitive', () => {
     const modules = {
@@ -78,5 +85,30 @@ describe('vuex-assert', () => {
 
     store.commit('update', undefined)
     assert(/state\.foo\.value must be number, but actual value is undefined/.test(_message))
+  })
+
+  it('asserts optional value', () => {
+    const modules = {
+      foo: {
+        state: { value: 1 },
+        assertions: { value: number.optional },
+        mutations: {
+          update: (state, n) => state.value = n
+        }
+      }
+    }
+
+    const store = new Vuex.Store({
+      modules,
+      plugins: [
+        plugin({ modules })
+      ]
+    })
+
+    store.commit('update', null)
+    assert(_message === undefined)
+
+    store.commit('update', undefined)
+    assert(_message === undefined)
   })
 })
