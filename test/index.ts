@@ -7,7 +7,8 @@ import {
   number,
   string,
   boolean,
-  object
+  object,
+  array
 } from '../src/index'
 
 describe('vuex-assert', () => {
@@ -202,5 +203,36 @@ describe('vuex-assert', () => {
       plugins: [plugin({ assertions })]
     })
     assert(/state\.value == \["string"\], object is expected/.test(_message[0]))
+  })
+
+  it('asserts array items', () => {
+    const assertions = {
+      value: array(number)
+    }
+    const store = new Vuex.Store({
+      state: {
+        value: [1, 2, 'string', true, 5]
+      },
+      assertions,
+      plugins: [plugin({ assertions })]
+    })
+    assert(/state\.value\[2\] == "string", number is expected/.test(_message[0]))
+    assert(/state\.value\[3\] == true, number is expected/.test(_message[1]))
+  })
+
+  it('asserts array itself', () => {
+    const assertions = {
+      a: array(),
+      b: array()
+    }
+    const store = new Vuex.Store({
+      state: {
+        a: 'string',
+        b: [1, true, 'string', null]
+      },
+      assertions,
+      plugins: [plugin({ assertions })]
+    })
+    assert(/state\.a == "string", array is expected/.test(_message[0]))
   })
 })

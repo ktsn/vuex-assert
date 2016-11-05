@@ -192,3 +192,34 @@ export function object (assertions: { [key: string]: Assertion } = {}, message: 
     } as AssertionResult)
   })
 }
+
+export function array (assertion?: Assertion, message: string = 'array is expected'): Assertion {
+  return new Assertion(value => {
+    if (!Array.isArray(value)) {
+      return {
+        valid: false,
+        errors: [{
+          message,
+          path: [],
+          actual: value
+        }]
+      }
+    }
+
+    // skip type check for array items if Assertion is not specified
+    if (!assertion) return { valid: true, errors: [] }
+
+    return value
+      .map(item => assertion.validate(item))
+      .reduce((acc, result, index) => {
+        acc.valid = acc.valid && result.valid
+        // prepend the index for the state path
+        result.errors.forEach(error => error.path.unshift(index))
+        acc.errors = acc.errors.concat(result.errors)
+        return acc
+      }, {
+        valid: true,
+        errors: []
+      } as AssertionResult)
+  })
+}
