@@ -171,4 +171,20 @@ describe('vuex-assert', () => {
     })
     assert(/state\.foo\.value\.b\.c == 2, boolean is expected/.test(_message[0]))
   })
+
+  it('asserts object itself', () => {
+    const assertions = {
+      value: object({
+        a: string
+      })
+    }
+    const store = new Vuex.Store({
+      state: {
+        value: 'not object'
+      },
+      assertions,
+      plugins: [plugin({ assertions })]
+    })
+    assert(/state\.value == "not object", object is expected/.test(_message[0]))
+  })
 })

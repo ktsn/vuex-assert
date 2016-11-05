@@ -143,7 +143,7 @@ export const number = assert(value => typeof value === 'number', 'number is expe
 export const string = assert(value => typeof value === 'string', 'string is expected')
 export const boolean = assert(value => typeof value === 'boolean', 'boolean is expected')
 
-export function object (assertions: { [key: string]: Assertion }, message: string = ''): Assertion {
+export function object (assertions: { [key: string]: Assertion }, message: string = 'object is expected'): Assertion {
   return new Assertion(value => {
     if (!isObject(value) || Array.isArray(value)) {
       return {
