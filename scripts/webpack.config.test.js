@@ -12,8 +12,11 @@ module.exports = {
     extensions: ['', '.ts', '.js']
   },
   module: {
+    postLoaders: [
+      { test: /\.ts$/, loader: 'webpack-espower', include: /test/ }
+    ],
     loaders: [
-      { test: /\.ts$/, loader: 'webpack-espower!ts' },
+      { test: /\.ts$/, loader: 'ts' },
       { test: /\.json$/, loader: 'json-loader' }
     ]
   },

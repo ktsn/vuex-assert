@@ -38,7 +38,11 @@ class Assertion {
     return this.fn(state)
   }
 
-  get optional () {
+  assert (fn: (value: any) => boolean, message?: string): Assertion {
+    return and([this, assert(fn, message)])
+  }
+
+  get optional (): Assertion {
     return or([this, optional])
   }
 }

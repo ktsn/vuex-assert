@@ -235,4 +235,29 @@ describe('vuex-assert', () => {
     })
     assert(/state\.a == "string", array is expected/.test(_message[0]))
   })
+
+  it('chains assertion', () => {
+    const assertions = {
+      value: number.assert(value => value < 10, 'value < 10')
+    }
+    const store = new Vuex.Store({
+      state: {
+        value: 5
+      },
+      mutations: {
+        update: (state, n) => state.value = n
+      },
+      assertions,
+      plugins: [assertPlugin({ assertions })]
+    })
+
+    assert(_message.length === 0)
+
+    store.commit('update', 10)
+    assert(/state\.value == 10, value < 10/.test(_message[0]))
+
+    store.commit('update', 'str')
+    assert(/state\.value == "str", number is expected/.test(_message[1]))
+    assert(/state\.value == "str", value < 10/.test(_message[2]))
+  })
 })
