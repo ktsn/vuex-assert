@@ -23,9 +23,9 @@
     "url": "https://github.com/ktsn/vuex-assert.git"
   },
   "scripts": {
-    "prepublish": "npm run build",
+    "prepublish": "npm run test:ci && npm run clean && npm run build",
     "clean": "rm -rf lib dist .tmp",
-    "build": "run-s build:*",
+    "build": "npm run build:ts && npm run build:cjs && npm run build:dev && npm run build:prod",
     "build:ts": "tsc -p .",
     "build:cjs": "rollup -c scripts/rollup.config.js --environment BUILD:commonjs",
     "build:dev": "rollup -c scripts/rollup.config.js --environment BUILD:development",
@@ -33,8 +33,8 @@
     "watch:test": "webpack --watch --config scripts/webpack.config.test.js",
     "testem": "testem",
     "lint": "tslint \"src/**/*.ts\" && tslint \"test/**/*.ts\"",
-    "test": "run-p watch:test testem",
-    "test:ci": "webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
+    "test": "npm run watch:test & testem && kill %1",
+    "test:ci": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.32",
@@ -42,7 +42,6 @@
     "es6-promise": "^4.0.5",
     "glob": "^7.1.0",
     "json-loader": "^0.5.4",
-    "npm-run-all": "^3.1.0",
     "power-assert": "^1.4.1",
     "rollup": "^0.36.0",
     "rollup-plugin-replace": "^1.1.1",
