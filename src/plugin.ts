@@ -1,7 +1,7 @@
 import { Store } from 'vuex'
 import { Assertion, AssertionOptions } from './assertion'
 import { and, object } from './helpers'
-import { mapValues, reduce, isObject, warn } from './utils'
+import { mapValues, warn } from './utils'
 
 export interface PluginOptions extends AssertionOptions {}
 

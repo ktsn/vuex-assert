@@ -1,5 +1,4 @@
 import * as assert from 'power-assert'
-import * as sinon from 'sinon'
 import * as Vue from 'vue'
 import * as Vuex from 'vuex'
 import {
@@ -31,7 +30,7 @@ describe('vuex-assert', () => {
       value: string
     }
 
-    const store = new Vuex.Store({
+    new Vuex.Store({
       state: {
         value: 1
       },
@@ -179,7 +178,7 @@ describe('vuex-assert', () => {
         a: string
       })
     }
-    const store = new Vuex.Store({
+    new Vuex.Store({
       state: {
         value: 'not object'
       },
@@ -195,7 +194,7 @@ describe('vuex-assert', () => {
         a: string
       })
     }
-    const store = new Vuex.Store({
+    new Vuex.Store({
       state: {
         value: ['string']
       },
@@ -209,7 +208,7 @@ describe('vuex-assert', () => {
     const assertions = {
       value: array(number)
     }
-    const store = new Vuex.Store({
+    new Vuex.Store({
       state: {
         value: [1, 2, 'string', true, 5]
       },
@@ -225,7 +224,7 @@ describe('vuex-assert', () => {
       a: array(),
       b: array()
     }
-    const store = new Vuex.Store({
+    new Vuex.Store({
       state: {
         a: 'string',
         b: [1, true, 'string', null]
