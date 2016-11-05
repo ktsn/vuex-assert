@@ -187,4 +187,20 @@ describe('vuex-assert', () => {
     })
     assert(/state\.value == "not object", object is expected/.test(_message[0]))
   })
+
+  it('does not treat array as object', () => {
+    const assertions = {
+      value: object({
+        a: string
+      })
+    }
+    const store = new Vuex.Store({
+      state: {
+        value: ['string']
+      },
+      assertions,
+      plugins: [plugin({ assertions })]
+    })
+    assert(/state\.value == \["string"\], object is expected/.test(_message[0]))
+  })
 })
