@@ -1,18 +1,23 @@
 import { Store, ModuleTree } from 'vuex'
-import { forEachValue, warn } from './utils'
+import { mapValues, reduce, isObject, warn } from './utils'
 
-interface AssertResult {
+interface AssertionResult {
   valid: boolean
-  expected: string
+  errors: AssertionError[]
+}
+
+interface AssertionError {
+  message: string
+  path: string[]
   actual: any
 }
 
-interface AssertOptions {
+interface AssertionOptions {
   modules?: ModuleTree<any>
   assertions?: { [key: string]: Assertion }
 }
 
-interface PluginOptions extends AssertOptions {}
+interface PluginOptions extends AssertionOptions {}
 
 declare module 'vuex' {
   interface Module<S, R> {
@@ -22,16 +27,11 @@ declare module 'vuex' {
 
 class Assertion {
   constructor (
-    private fn: (value: any) => boolean,
-    public expected: string
+    private fn: (value: any) => AssertionResult
   ) {}
 
-  validate (state: any): AssertResult {
-    return {
-      valid: this.fn(state),
-      expected: this.expected,
-      actual: state
-    }
+  validate (state: any): AssertionResult {
+    return this.fn(state)
   }
 
   get optional () {
@@ -40,53 +40,130 @@ class Assertion {
 }
 
 export function plugin (options: PluginOptions): (store: Store<any>) => void {
+  const assertion = collectAssertions(options, [])
+
   return store => {
     store.subscribe((_, state) => {
-      assertState(state, options, [])
+      assertState(assertion, state)
     })
   }
 }
 
-function assertState (
-  state: any,
-  module: AssertOptions,
+function collectAssertions (
+  module: AssertionOptions,
   path: string[]
-): void {
+): Assertion {
+  const assertions: Assertion[] = []
+
   if (module.assertions) {
-    const assertions = module.assertions
-    forEachValue(assertions, (assertion, key) => {
-      const res = assertion.validate(state[key])
-      if (!res.valid) {
-        warn(
-          'state.' + path.concat(key).join('.') +
-          ' must be ' + res.expected + ', but actual value is ' +
-          JSON.stringify(res.actual)
-        )
-      }
-    })
+    assertions.push(object(module.assertions))
   }
 
   if (module.modules) {
-    const modules = module.modules
-    forEachValue(modules, (module, key) => {
-      assertState(state[key], module, path.concat(key))
+    const modulesAssertion = object(mapValues(module.modules, module => {
+      return collectAssertions(module, path)
+    }))
+    assertions.push(modulesAssertion)
+  }
+
+  return and(assertions)
+}
+
+function assertState (
+  assertion: Assertion,
+  state: any
+): void {
+  const res = assertion.validate(state)
+  if (!res.valid) {
+    res.errors.forEach(error => {
+      warn(
+        'state.' + error.path.join('.') +
+        ' == ' + JSON.stringify(error.actual) +
+        ', ' + error.message
+      )
     })
   }
 }
 
-export function or (assertions: Assertion[]): Assertion {
+export function assert (fn: (value: any) => boolean, message: string = ''): Assertion {
   return new Assertion(value => {
-    return assertions
-      .map(a => a.validate(value).valid)
-      .reduce((acc, res) => acc || res, false)
-  }, assertions
-    .map(a => a.expected)
-    .join(' or ')
-  )
+    const result: AssertionResult = {
+      valid: fn(value),
+      errors: []
+    }
+    if (!result.valid) {
+      result.errors.push({
+        message,
+        path: [],
+        actual: value
+      })
+    }
+    return result
+  })
 }
 
-const optional = new Assertion(value => value == null, 'null or undefined')
+function compose (assertions: Assertion[], fn: (a: boolean, b: boolean) => boolean, initial: boolean): Assertion {
+    return new Assertion(value => {
+    const result = assertions
+      .map(a => a.validate(value))
+      .reduce((acc, res) => {
+        return {
+          valid: fn(acc.valid, res.valid),
+          errors: acc.errors.concat(res.errors)
+        }
+      }, {
+        valid: initial,
+        errors: []
+      })
 
-export const number = new Assertion(value => typeof value === 'number', 'number')
-export const string = new Assertion(value => typeof value === 'string', 'string')
-export const boolean = new Assertion(value => typeof value === 'boolean', 'boolean')
+    if (result.valid) {
+      result.errors = []
+    }
+
+    return result
+  })
+}
+
+const optional = assert(value => value == null, 'null or undefined is expected')
+
+export function and (assertions: Assertion[]): Assertion {
+  return compose(assertions, (a, b) => a && b, true)
+}
+
+export function or (assertions: Assertion[]): Assertion {
+  return compose(assertions, (a, b) => a || b, false)
+}
+
+export const number = assert(value => typeof value === 'number', 'number is expected')
+export const string = assert(value => typeof value === 'string', 'string is expected')
+export const boolean = assert(value => typeof value === 'boolean', 'boolean is expected')
+
+export function object (assertions: { [key: string]: Assertion }, message: string = ''): Assertion {
+  return new Assertion(value => {
+    if (!isObject(value) || Array.isArray(value)) {
+      return {
+        valid: false,
+        errors: [{
+          message,
+          path: [],
+          actual: value
+        }]
+      }
+    }
+
+    const results = mapValues(assertions, (assertion, key) => {
+      return assertion.validate(value[key])
+    })
+
+    return reduce(results, (acc, result, key) => {
+      acc.valid = acc.valid && result.valid
+      // prepend the key for the state path
+      result.errors.forEach(error => error.path.unshift(key))
+      acc.errors = acc.errors.concat(result.errors)
+      return acc
+    }, {
+      valid: true,
+      errors: []
+    } as AssertionResult)
+  })
+}

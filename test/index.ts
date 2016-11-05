@@ -6,22 +6,23 @@ import {
   plugin,
   number,
   string,
-  boolean
+  boolean,
+  object
 } from '../src/index'
 
 describe('vuex-assert', () => {
   Vue.use(Vuex)
 
-  let _message: string | undefined
+  let _message: string[]
 
   before(() => {
     console.error = message => {
-      _message = message
+      _message.push(message)
     }
   })
 
   beforeEach(() => {
-    _message = undefined
+    _message = []
   })
 
   it('asserts primitive', () => {
@@ -33,9 +34,11 @@ describe('vuex-assert', () => {
           c: true
         },
         mutations: {
-          a: (state, n) => state.a = n,
-          b: (state, n) => state.b = n,
-          c: (state, n) => state.c = n
+          update: (state, n) => {
+            state.a = n[0]
+            state.b = n[1]
+            state.c = n[2]
+          }
         },
         assertions: {
           a: number,
@@ -52,14 +55,10 @@ describe('vuex-assert', () => {
       ]
     })
 
-    store.commit('a', '1')
-    assert(/state\.foo\.a must be number, but actual value is "1"/.test(_message))
-
-    store.commit('b', false)
-    assert(/state\.foo\.b must be string, but actual value is false/.test(_message))
-
-    store.commit('c', { bar: 1 })
-    assert(/state\.foo\.c must be boolean, but actual value is {"bar":1}/.test(_message))
+    store.commit('update', ['1', false, { bar: 1 }])
+    assert(/state\.foo\.a == "1", number is expected/.test(_message[0]))
+    assert(/state\.foo\.b == false, string is expected/.test(_message[1]))
+    assert(/state\.foo\.c == {"bar":1}, boolean is expected/.test(_message[2]))
   })
 
   it('disallow null and undefined', () => {
@@ -81,10 +80,10 @@ describe('vuex-assert', () => {
     })
 
     store.commit('update', null)
-    assert(/state\.foo\.value must be number, but actual value is null/.test(_message))
+    assert(/state\.foo\.value == null, number is expected/.test(_message[0]))
 
     store.commit('update', undefined)
-    assert(/state\.foo\.value must be number, but actual value is undefined/.test(_message))
+    assert(/state\.foo\.value == undefined, number is expected/.test(_message[1]))
   })
 
   it('asserts optional value', () => {
@@ -106,9 +105,54 @@ describe('vuex-assert', () => {
     })
 
     store.commit('update', null)
-    assert(_message === undefined)
+    assert(_message.length === 0)
 
     store.commit('update', undefined)
-    assert(_message === undefined)
+    assert(_message.length === 0)
+
+    store.commit('update', 'str')
+    assert(/state\.foo\.value == "str", number is expected/.test(_message[0]))
+    assert(/state\.foo\.value == "str", null or undefined is expected/.test(_message[1]))
+  })
+
+  it('asserts object value', () => {
+    const modules = {
+      foo: {
+        state: {
+          value: {
+            a: 0,
+            b: {
+              c: false
+            }
+          }
+        },
+        assertions: {
+          value: object({
+            a: number,
+            b: object({
+              c: boolean
+            })
+          })
+        },
+        mutations: {
+          update: (state, n) => state.value = n
+        }
+      }
+    }
+
+    const store = new Vuex.Store({
+      modules,
+      plugins: [
+        plugin({ modules })
+      ]
+    })
+
+    store.commit('update', {
+      a: 1,
+      b: {
+        c: 2
+      }
+    })
+    assert(/state\.foo\.value\.b\.c == 2, boolean is expected/.test(_message[0]))
   })
 })
