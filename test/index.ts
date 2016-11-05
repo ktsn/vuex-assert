@@ -25,6 +25,22 @@ describe('vuex-assert', () => {
     _message = []
   })
 
+  it('asserts initail state', () => {
+    const assertions = {
+      value: string
+    }
+
+    const store = new Vuex.Store({
+      state: {
+        value: 1
+      },
+      assertions,
+      plugins: [plugin({ assertions })]
+    })
+
+    assert(/state\.value == 1, string is expected/.test(_message[0]))
+  })
+
   it('asserts primitive', () => {
     const modules = {
       foo: {

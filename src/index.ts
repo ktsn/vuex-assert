@@ -20,6 +20,10 @@ interface AssertionOptions {
 interface PluginOptions extends AssertionOptions {}
 
 declare module 'vuex' {
+  interface StoreOptions<S> {
+    assertions?: { [key: string]: Assertion }
+  }
+
   interface Module<S, R> {
     assertions?: { [key: string]: Assertion }
   }
@@ -43,6 +47,7 @@ export function plugin (options: PluginOptions): (store: Store<any>) => void {
   const assertion = collectAssertions(options, [])
 
   return store => {
+    assertState(assertion, store.state)
     store.subscribe((_, state) => {
       assertState(assertion, state)
     })
