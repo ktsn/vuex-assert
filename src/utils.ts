@@ -28,10 +28,6 @@ export function reduce <T, U>(
   return acc
 }
 
-export function flatten <T>(list: T[][]): T[] {
-  return list.reduce((acc, xs) => acc.concat(xs), [])
-}
-
 export function isObject (value: any): boolean {
   return value !== null && typeof value === 'object'
 }

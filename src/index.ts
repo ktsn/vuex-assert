@@ -8,7 +8,7 @@ interface AssertionResult {
 
 interface AssertionError {
   message: string
-  path: string[]
+  path: (string | number)[]
   actual: any
 }
 
@@ -82,12 +82,32 @@ function assertState (
   if (!res.valid) {
     res.errors.forEach(error => {
       warn(
-        'state.' + error.path.join('.') +
+        'state' + formatPath(error.path) +
         ' == ' + JSON.stringify(error.actual) +
         ', ' + error.message
       )
     })
   }
+}
+
+function formatPath (path: (string | number)[]): string {
+  let cur = path[0], i = 0, buf = '', transform
+
+  const next = () => {
+    buf += transform(cur)
+    i += 1
+    cur = path[i]
+  }
+
+  const isIndex = value => typeof value === 'number'
+  const index = value => '[' + value + ']'
+  const key = value => '.' + value
+
+  while (cur != null) {
+    transform = isIndex(cur) ? index : key
+    next()
+  }
+  return buf
 }
 
 export function assert (fn: (value: any) => boolean, message: string = ''): Assertion {
