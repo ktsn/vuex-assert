@@ -3,7 +3,7 @@ import * as sinon from 'sinon'
 import * as Vue from 'vue'
 import * as Vuex from 'vuex'
 import {
-  plugin,
+  assertPlugin,
   number,
   string,
   boolean,
@@ -36,7 +36,7 @@ describe('vuex-assert', () => {
         value: 1
       },
       assertions,
-      plugins: [plugin({ assertions })]
+      plugins: [assertPlugin({ assertions })]
     })
 
     assert(/state\.value == 1, string is expected/.test(_message[0]))
@@ -68,7 +68,7 @@ describe('vuex-assert', () => {
     const store = new Vuex.Store({
       modules,
       plugins: [
-        plugin({ modules })
+        assertPlugin({ modules })
       ]
     })
 
@@ -92,7 +92,7 @@ describe('vuex-assert', () => {
     const store = new Vuex.Store({
       modules,
       plugins: [
-        plugin({ modules })
+        assertPlugin({ modules })
       ]
     })
 
@@ -117,7 +117,7 @@ describe('vuex-assert', () => {
     const store = new Vuex.Store({
       modules,
       plugins: [
-        plugin({ modules })
+        assertPlugin({ modules })
       ]
     })
 
@@ -160,7 +160,7 @@ describe('vuex-assert', () => {
     const store = new Vuex.Store({
       modules,
       plugins: [
-        plugin({ modules })
+        assertPlugin({ modules })
       ]
     })
 
@@ -184,7 +184,7 @@ describe('vuex-assert', () => {
         value: 'not object'
       },
       assertions,
-      plugins: [plugin({ assertions })]
+      plugins: [assertPlugin({ assertions })]
     })
     assert(/state\.value == "not object", object is expected/.test(_message[0]))
   })
@@ -200,7 +200,7 @@ describe('vuex-assert', () => {
         value: ['string']
       },
       assertions,
-      plugins: [plugin({ assertions })]
+      plugins: [assertPlugin({ assertions })]
     })
     assert(/state\.value == \["string"\], object is expected/.test(_message[0]))
   })
@@ -214,7 +214,7 @@ describe('vuex-assert', () => {
         value: [1, 2, 'string', true, 5]
       },
       assertions,
-      plugins: [plugin({ assertions })]
+      plugins: [assertPlugin({ assertions })]
     })
     assert(/state\.value\[2\] == "string", number is expected/.test(_message[0]))
     assert(/state\.value\[3\] == true, number is expected/.test(_message[1]))
@@ -231,7 +231,7 @@ describe('vuex-assert', () => {
         b: [1, true, 'string', null]
       },
       assertions,
-      plugins: [plugin({ assertions })]
+      plugins: [assertPlugin({ assertions })]
     })
     assert(/state\.a == "string", array is expected/.test(_message[0]))
   })

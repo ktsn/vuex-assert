@@ -43,7 +43,7 @@ class Assertion {
   }
 }
 
-export function plugin (options: PluginOptions): (store: Store<any>) => void {
+export function assertPlugin (options: PluginOptions): (store: Store<any>) => void {
   const assertion = collectAssertions(options, [])
 
   return store => {
