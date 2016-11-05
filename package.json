@@ -11,6 +11,8 @@
   ],
   "license": "MIT",
   "main": "dist/vuex-assert.cjs.js",
+  "jsnext:main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "files": [
     "dist"
   ],
@@ -22,8 +24,9 @@
   },
   "scripts": {
     "prepublish": "npm run build",
-    "clean": "rm -rf dist .tmp",
-    "build": "run-p build:*",
+    "clean": "rm -rf lib dist .tmp",
+    "build": "run-s build:*",
+    "build:ts": "tsc -p .",
     "build:cjs": "rollup -c scripts/rollup.config.js --environment BUILD:commonjs",
     "build:dev": "rollup -c scripts/rollup.config.js --environment BUILD:development",
     "build:prod": "rollup -c scripts/rollup.config.js --environment BUILD:production | uglifyjs -mc warnings=false --comments -o dist/vuex-assert.min.js",
@@ -43,11 +46,10 @@
     "power-assert": "^1.4.1",
     "rollup": "^0.36.0",
     "rollup-plugin-replace": "^1.1.1",
-    "rollup-plugin-typescript": "^0.8.1",
     "testem": "^1.12.0",
     "ts-loader": "1.0.0",
     "tslint": "^3.15.1",
-    "typescript": "^2.0.3",
+    "typescript": "^2.0.7",
     "vue": "^2.0.3",
     "vuex": "^2.0.0",
     "webpack": "2.1.0-beta.25",

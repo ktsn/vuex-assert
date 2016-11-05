@@ -1,15 +1,10 @@
-const typescript = require('rollup-plugin-typescript')
 const replace = require('rollup-plugin-replace')
 const meta = require('../package.json')
 
 const config = {
-  entry: 'src/index.ts',
+  entry: 'lib/index.js',
   moduleName: 'VuexAssert',
-  plugins: [
-    typescript({
-      typescript: require('typescript')
-    })
-  ],
+  plugins: [],
   banner: `/*!
  * ${meta.name} v${meta.version}
  * ${meta.homepage}

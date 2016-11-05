@@ -3,3 +3,4 @@ typings/
 
 /dist/
 /.tmp/
+/lib/
