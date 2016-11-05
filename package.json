@@ -1,12 +1,13 @@
 {
   "name": "vuex-assert",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "author": "katashin",
   "private": true,
-  "description": "A project template for a TypeScript library",
+  "description": "Assertion for Vuex state",
   "keywords": [
-    "template",
-    "TypeScript"
+    "Vuex",
+    "Vue",
+    "assert"
   ],
   "license": "MIT",
   "main": "dist/vuex-assert.cjs.js",
