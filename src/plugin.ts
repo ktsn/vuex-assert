@@ -16,7 +16,7 @@ declare module 'vuex' {
 }
 
 export function assertPlugin (options: PluginOptions): (store: Store<any>) => void {
-  const assertion = collectAssertions(options, [])
+  const assertion = collectAssertions(options)
 
   return store => {
     assertState(assertion, store.state)
@@ -26,10 +26,7 @@ export function assertPlugin (options: PluginOptions): (store: Store<any>) => vo
   }
 }
 
-function collectAssertions (
-  module: AssertionOptions,
-  path: string[]
-): Assertion {
+function collectAssertions (module: AssertionOptions): Assertion {
   const assertions: Assertion[] = []
 
   if (module.assertions) {
@@ -38,7 +35,7 @@ function collectAssertions (
 
   if (module.modules) {
     const modulesAssertion = object(mapValues(module.modules, module => {
-      return collectAssertions(module, path)
+      return collectAssertions(module)
     }))
     assertions.push(modulesAssertion)
   }
