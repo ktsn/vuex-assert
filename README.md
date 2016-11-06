@@ -4,6 +4,8 @@ Assertion for Vuex state
 
 ## Examples
 
+Just add `assertions` into your Vuex modules.
+
 ```js
 // modules/users.js
 import {
@@ -37,6 +39,8 @@ export default {
 }
 ```
 
+Add `assertPlugin` to plugins option of `Vuex.Store` with your modules.
+
 ```js
 import Vuex from 'vuex'
 import modules from './modules'
@@ -48,6 +52,12 @@ const store = new Vuex.Store({
     assertPlugin({ modules })
   ]
 })
+```
+
+Then, the store state will be validated for every mutation. Like following message will be printed if the assertion is failed.
+
+```
+[vuex-assert] state.users.error.code == null, number is expected
 ```
 
 ## API
