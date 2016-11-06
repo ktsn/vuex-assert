@@ -63,54 +63,54 @@ Then, the store state will be validated for every mutation. Like following messa
 ## API
 
 - class Assertion
-  - optional: Assertion
+  - `optional: Assertion`
 
     Get assertion for optional type of this assertion.
 
-  - assert(fn: (value: any) => boolean, message?: string): Assertion
+  - `assert(fn: (value: any) => boolean, message?: string): Assertion`
 
     Include additional assertion for this assertion.
 
-- assertPlugin(options): VuexPlugin
+- `assertPlugin(options): VuexPlugin`
 
   Create Vuex plugin with options.
 
-  - options.assertions: { [key: string]: Assertion }
-  - options.modules: { [key: string]: VuexModule }
+  - `options.assertions: { [key: string]: Assertion }`
+  - `options.modules: { [key: string]: VuexModule }`
 
-- assert(fn: (value: any) => boolean, message?: string): Assertion
+- `assert(fn: (value: any) => boolean, message?: string): Assertion`
 
   Create new assertion.
 
-- number: Assertion
+- `number: Assertion`
 
   Assertion for number.
 
-- string: Assertion
+- `string: Assertion`
 
   Assertion for string.
 
-- boolean: Assertion
+- `boolean: Assertion`
 
   Assertion for boolean.
 
-- optional: Assertion
+- `optional: Assertion`
 
   Assertion for null or undefined.
 
-- object(assertions?: { [key: string]: Assertion }, message?: string): Assertion
+- `object(assertions?: { [key: string]: Assertion }, message?: string): Assertion`
 
   Create assertion for object with properties assertions.
 
-- array(assertion?: Assertion, message?: string): Assertion
+- `array(assertion?: Assertion, message?: string): Assertion`
 
   Create assertion for array with items assertions.
 
-- and(assertions: Assertion[]): Assertion
+- `and(assertions: Assertion[]): Assertion`
 
   Intersect given assertions.
 
-- or(assertions: Assertion[]): Assertion
+- `or(assertions: Assertion[]): Assertion`
 
   Union given assertions.
 
