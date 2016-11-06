@@ -259,4 +259,49 @@ describe('vuex-assert', () => {
     assert(/state\.value == "str", number is expected/.test(_message[1]))
     assert(/state\.value == "str", value < 10/.test(_message[2]))
   })
+
+  it('asserts nested modules', () => {
+    const mutations = {
+      update: (state, n) => state.value = n
+    }
+
+    const modules = {
+      a: {
+        state: { value: 1 },
+        assertions: { value: number },
+        mutations,
+        modules: {
+          b: {
+            state: { value: 2 },
+            assertions: { value: number },
+            mutations
+          },
+          c: {
+            state: { value: 3 },
+            assertions: { value: number },
+            mutations,
+            modules: {
+              d: {
+                state: { value: 4 },
+                assertions: { value: number },
+                mutations
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const store = new Vuex.Store({
+      modules,
+      plugins: [assertPlugin({ modules })]
+    })
+
+    assert(_message.length === 0)
+    store.commit('update', null)
+    ;['a.value', 'a.b.value', 'a.c.value', 'a.c.d.value'].forEach((path, i) => {
+      const expected = new RegExp(`state.${path} == null, number is expected`)
+      assert(expected.test(_message[i]))
+    })
+  })
 })
