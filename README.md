@@ -1,4 +1,6 @@
 # vuex-assert
+[![npm version](https://badge.fury.io/js/vuex-assert.svg)](https://badge.fury.io/js/vuex-assert)
+[![Build Status](https://travis-ci.org/ktsn/vuex-assert.svg?branch=master)](https://travis-ci.org/ktsn/vuex-assert)
 
 Assertion for Vuex state
 
