@@ -1,6 +1,7 @@
 import { Store } from 'vuex'
 import { Assertion, AssertionOptions } from './assertion'
 import { and, object } from './helpers'
+import { formatErrors } from './formatter'
 import { mapValues, warn } from './utils'
 
 export interface PluginOptions extends AssertionOptions {}
@@ -49,32 +50,7 @@ function assertState (
 ): void {
   const res = assertion.validate(state)
   if (!res.valid) {
-    res.errors.forEach(error => {
-      warn(
-        'state' + formatPath(error.path) +
-        ' == ' + JSON.stringify(error.actual) +
-        ', ' + error.message
-      )
-    })
+    warn(formatErrors(res.errors))
   }
 }
 
-function formatPath (path: (string | number)[]): string {
-  let cur = path[0], i = 0, buf = '', transform: (value: string) => string
-
-  const next = () => {
-    buf += transform(String(cur))
-    i += 1
-    cur = path[i]
-  }
-
-  const isIndex = (value: string | number) => typeof value === 'number'
-  const index = (value: string) => '[' + value + ']'
-  const key = (value: string) => '.' + value
-
-  while (cur != null) {
-    transform = isIndex(cur) ? index : key
-    next()
-  }
-  return buf
-}

@@ -1,0 +1,3 @@
+state.foo.bar == 123
+state.foo[3].baz == true
+state[10].a.b == {"test":10}
