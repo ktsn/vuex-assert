@@ -2,7 +2,7 @@ import { Store } from 'vuex'
 import { Assertion, AssertionOptions } from './assertion'
 import { and, object } from './helpers'
 import { formatErrors } from './formatter'
-import { mapValues, warn } from './utils'
+import { mapValues } from './utils'
 
 export interface PluginOptions extends AssertionOptions {}
 
@@ -50,7 +50,7 @@ function assertState (
 ): void {
   const res = assertion.validate(state)
   if (!res.valid) {
-    warn('AssertionError:\n' + formatErrors(res.errors))
+    throw new Error('[vuex-assert] AssertionError:\n' + formatErrors(res.errors))
   }
 }
 
