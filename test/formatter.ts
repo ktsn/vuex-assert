@@ -12,4 +12,14 @@ describe('formatter', () => {
     ])
     assert(actual === require('./fixtures/simple.txt'))
   })
+
+  it('shows assertion messages', () => {
+    const actual = formatErrors([
+      { path: ['foo'], actual: 123, message: 'string is expected' },
+      { path: ['bar'], actual: null, message: '' },
+      { path: ['baz'], actual: 'hello', message: 'number is expected' },
+      { path: ['baz'], actual: 'hello', message: 'null or undefined is expected' }
+    ])
+    assert(actual === require('./fixtures/message.txt'))
+  })
 })
