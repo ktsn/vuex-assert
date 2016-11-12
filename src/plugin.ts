@@ -50,7 +50,7 @@ function assertState (
 ): void {
   const res = assertion.validate(state)
   if (!res.valid) {
-    warn('\n' + formatErrors(res.errors))
+    warn('AssertionError:\n' + formatErrors(res.errors))
   }
 }
 
