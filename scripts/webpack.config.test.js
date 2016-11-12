@@ -15,6 +15,7 @@ module.exports = {
     rules: [
       { enforce: 'post', test: /\.ts$/, loader: 'webpack-espower', include: /test/ },
       { test: /\.ts$/, loader: 'ts' },
+      { test: /\.txt$/, loader: 'raw' },
       { test: /\.json$/, loader: 'json-loader' }
     ]
   },

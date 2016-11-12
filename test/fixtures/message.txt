@@ -1,0 +1,6 @@
+state.foo == 123
+	string is expected
+state.bar == null
+state.baz == "hello"
+	number is expected
+	null or undefined is expected

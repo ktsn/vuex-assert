@@ -13,16 +13,16 @@ import {
 describe('vuex-assert', () => {
   Vue.use(Vuex)
 
-  let _message: string[]
+  let _message: string = ''
 
   before(() => {
     console.error = message => {
-      _message.push(message)
+      _message = message
     }
   })
 
   beforeEach(() => {
-    _message = []
+    _message = ''
   })
 
   it('asserts initail state', () => {
@@ -38,7 +38,7 @@ describe('vuex-assert', () => {
       plugins: [assertPlugin({ assertions })]
     })
 
-    assert(/state\.value == 1, string is expected/.test(_message[0]))
+    assert(/state\.value == 1\n\tstring is expected/.test(_message))
   })
 
   it('asserts primitive', () => {
@@ -50,11 +50,9 @@ describe('vuex-assert', () => {
           c: true
         },
         mutations: {
-          update: (state, n) => {
-            state.a = n[0]
-            state.b = n[1]
-            state.c = n[2]
-          }
+          a: (state, n) => state.a = n,
+          b: (state, n) => state.b = n,
+          c: (state, n) => state.c = n
         },
         assertions: {
           a: number,
@@ -71,10 +69,12 @@ describe('vuex-assert', () => {
       ]
     })
 
-    store.commit('update', ['1', false, { bar: 1 }])
-    assert(/state\.foo\.a == "1", number is expected/.test(_message[0]))
-    assert(/state\.foo\.b == false, string is expected/.test(_message[1]))
-    assert(/state\.foo\.c == {"bar":1}, boolean is expected/.test(_message[2]))
+    store.commit('a', '1')
+    assert(/state\.foo\.a == "1"\n\tnumber is expected/.test(_message))
+    store.commit('b', false)
+    assert(/state\.foo\.b == false\n\tstring is expected/.test(_message))
+    store.commit('c', { bar: 1 })
+    assert(/state\.foo\.c == {"bar":1}\n\tboolean is expected/.test(_message))
   })
 
   it('disallow null and undefined', () => {
@@ -96,10 +96,10 @@ describe('vuex-assert', () => {
     })
 
     store.commit('update', null)
-    assert(/state\.foo\.value == null, number is expected/.test(_message[0]))
+    assert(/state\.foo\.value == null\n\tnumber is expected/.test(_message))
 
     store.commit('update', undefined)
-    assert(/state\.foo\.value == undefined, number is expected/.test(_message[1]))
+    assert(/state\.foo\.value == undefined\n\tnumber is expected/.test(_message))
   })
 
   it('asserts optional value', () => {
@@ -121,14 +121,13 @@ describe('vuex-assert', () => {
     })
 
     store.commit('update', null)
-    assert(_message.length === 0)
+    assert(_message === '')
 
     store.commit('update', undefined)
-    assert(_message.length === 0)
+    assert(_message === '')
 
     store.commit('update', 'str')
-    assert(/state\.foo\.value == "str", number is expected/.test(_message[0]))
-    assert(/state\.foo\.value == "str", null or undefined is expected/.test(_message[1]))
+    assert(/state\.foo\.value == "str"\n\tnumber is expected\n\tnull or undefined is expected/.test(_message))
   })
 
   it('asserts object value', () => {
@@ -169,7 +168,7 @@ describe('vuex-assert', () => {
         c: 2
       }
     })
-    assert(/state\.foo\.value\.b\.c == 2, boolean is expected/.test(_message[0]))
+    assert(/state\.foo\.value\.b\.c == 2\n\tboolean is expected/.test(_message))
   })
 
   it('asserts object itself', () => {
@@ -185,7 +184,7 @@ describe('vuex-assert', () => {
       assertions,
       plugins: [assertPlugin({ assertions })]
     })
-    assert(/state\.value == "not object", object is expected/.test(_message[0]))
+    assert(/state\.value == "not object"\n\tobject is expected/.test(_message))
   })
 
   it('does not treat array as object', () => {
@@ -201,7 +200,7 @@ describe('vuex-assert', () => {
       assertions,
       plugins: [assertPlugin({ assertions })]
     })
-    assert(/state\.value == \["string"\], object is expected/.test(_message[0]))
+    assert(/state\.value == \["string"\]\n\tobject is expected/.test(_message))
   })
 
   it('asserts array items', () => {
@@ -215,8 +214,8 @@ describe('vuex-assert', () => {
       assertions,
       plugins: [assertPlugin({ assertions })]
     })
-    assert(/state\.value\[2\] == "string", number is expected/.test(_message[0]))
-    assert(/state\.value\[3\] == true, number is expected/.test(_message[1]))
+    assert(/state\.value\[2\] == "string"\n\tnumber is expected/.test(_message))
+    assert(/state\.value\[3\] == true\n\tnumber is expected/.test(_message))
   })
 
   it('asserts array itself', () => {
@@ -232,7 +231,7 @@ describe('vuex-assert', () => {
       assertions,
       plugins: [assertPlugin({ assertions })]
     })
-    assert(/state\.a == "string", array is expected/.test(_message[0]))
+    assert(/state\.a == "string"\n\tarray is expected/.test(_message))
   })
 
   it('chains assertion', () => {
@@ -253,11 +252,10 @@ describe('vuex-assert', () => {
     assert(_message.length === 0)
 
     store.commit('update', 10)
-    assert(/state\.value == 10, value < 10/.test(_message[0]))
+    assert(/state\.value == 10\n\tvalue < 10/.test(_message))
 
     store.commit('update', 'str')
-    assert(/state\.value == "str", number is expected/.test(_message[1]))
-    assert(/state\.value == "str", value < 10/.test(_message[2]))
+    assert(/state\.value == "str"\n\tnumber is expected\n\tvalue < 10/.test(_message))
   })
 
   it('asserts nested modules', () => {
@@ -300,8 +298,8 @@ describe('vuex-assert', () => {
     assert(_message.length === 0)
     store.commit('update', null)
     ;['a.value', 'a.b.value', 'a.c.value', 'a.c.d.value'].forEach((path, i) => {
-      const expected = new RegExp(`state.${path} == null, number is expected`)
-      assert(expected.test(_message[i]))
+      const expected = new RegExp(`state.${path} == null\n\tnumber is expected`)
+      assert(expected.test(_message))
     })
   })
 })
