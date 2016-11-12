@@ -32,6 +32,3 @@ export function isObject (value: any): boolean {
   return value !== null && typeof value === 'object'
 }
 
-export function warn (message: string): void {
-  console.error('[vuex-assert] ' + message)
-}
