@@ -59,7 +59,8 @@ const store = new Vuex.Store({
 Then, the store state will be validated for every mutation. Like following message will be printed if the assertion is failed.
 
 ```
-[vuex-assert] state.users.error.code == null, number is expected
+state.users.error.code == null
+	number is expected
 ```
 
 ## API
